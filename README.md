@@ -1,4 +1,4 @@
-# R-UK_Accident_Analysis
+# UK Accident Analysis
 Road accidents have significant consequences for people's safety and socio-economic costs, especially in large cities. Data analysis in this field can be critical to understanding the main triggering factors, identifying high-risk areas and, using machine learning, developing effective strategies to prevent future accidents and improve road safety.
 
 According to data from the Department of Transportation, in 2014 the highest number of road accidents in the UK were caused by the driver. Inexperience and improper behavior, the major causes. Followed by distraction, which caused 1 in 5 accidents, while infrastructure is blamed for about 17% of accidents.
