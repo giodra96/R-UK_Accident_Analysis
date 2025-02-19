@@ -15,7 +15,6 @@ Road accidents have significant consequences for people's safety and socio-econo
 According to data from the Department of Transportation, in 2014 the largest number of road accidents in the United Kingdom were caused by the driver. Inexperience and improper behavior are the major causes. Followed by distraction, which caused 1 in 5 accidents, while infrastructure is blamed for about 17% of accidents.
 
 This study, based on a dataset that collects accident data in the UK over a period of almost ten years, aims to provide an exhaustive description of the phenomenon of road accidents, exposing the most typical circumstances in which they occur, such as weather conditions, road surface conditions, time of day.
-## Descrizione del dataset
 
 # Dataset Description
 
