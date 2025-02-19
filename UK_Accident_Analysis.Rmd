@@ -1,5 +1,5 @@
 ---
-title: 'Incidenti Stradali nel Regno Unito: un''analisi descrittiva sulla distribuzione dei sinistri'
+title: 'Road Accidents in the UK: a descriptive analysis in R of the distribution of accidents'
 author: "Giorgio Dramis"
 date: "2024-02-24"
 output:
@@ -8,62 +8,63 @@ output:
   pdf_document: default
 ---
 
-# Introduzione
+# Introduction
 
-Gli incidenti stradali hanno conseguenze significative per la sicurezza delle persone ed i costi socio-economici, soprattutto nelle grandi metropoli. L'analisi dei dati, in questo campo, può rivelarsi fondamentale per comprenderne i **fattori scatenanti** principali, identificare le aree ad alto rischio e, con l'utilizzo del machine learning, sviluppare strategie efficaci per **prevenire** incidenti futuri e migliorare la sicurezza stradale.
+Road accidents have significant consequences for people's safety and socio-economic costs, especially in large metropolitan areas. Data analysis in this field can be fundamental to understanding the main triggering factors, identifying high-risk areas and, with the use of machine learning, developing effective strategies to prevent future accidents and improve road safety.
 
-Secondo i dati del Dipartimento dei Trasporti, nel 2014 il maggior numero di incidenti stradali nel Regno Unito è stato causato dal conducente. **Inesperienza** e **comportamenti scorretti**, le cause maggiori. Seguiti da **distrazione**, che causò 1 incidente su 5, mentre alle **infrastrutture** sono addossate le colpe del 17% circa di incidenti.
+According to data from the Department of Transportation, in 2014 the largest number of road accidents in the United Kingdom were caused by the driver. Inexperience and improper behavior are the major causes. Followed by distraction, which caused 1 in 5 accidents, while infrastructure is blamed for about 17% of accidents.
 
-Il presente studio, basato su un dataset che raccoglie dati di sinistri nel Regno Unito su un orizzonte di quasi dieci anni, si propone di effettuare una descrizione esaustiva del fenomeno degli incidenti stradali, esponendo le circostanze più tipiche in cui si verificano, come le condizioni atmosferiche, lo stato del manto stradale, l'ora del giorno.
-
+This study, based on a dataset that collects accident data in the UK over a period of almost ten years, aims to provide an exhaustive description of the phenomenon of road accidents, exposing the most typical circumstances in which they occur, such as weather conditions, road surface conditions, time of day.
 ## Descrizione del dataset
 
-Come menzionato in precedenza, il __[dataset](https://www.kaggle.com/code/piyushkr303/accident-severity-prediction-98-5-accuracy/input)__ utilizzato per l'analisi a seguire è un registro di 9 anni di incidenti stradali, dal 2005 al 2014, per un totale di poco più di un milione e mezzo di osservazioni.
+# Dataset Description
+
+As mentioned earlier, the __[dataset](https://www.kaggle.com/code/piyushkr303/accident-severity-prediction-98-5-accuracy/input)__ used for the following analysis is a 9-year record of road accidents, from 2005 to 2014, for a total of just over one and a half million observations.
 
 ```{r inport, echo=TRUE, message=FALSE, warning=FALSE}
 source <- read.csv("UK_Accident.csv")
 ```
 
-Il dataset originale si compone di 33 variabili, descritte a seguire:
+The original dataset consists of 33 variables, described below:
 
-_Variabili numeriche:_
+_Numerical variables:_
 
-* X: un progressivo, univoco per ciascuna osservazione;
-* Accident Index: codice numerico identificativo di ciascuna osservazione;
-* Location Easting OSGR: la sigla sta per "Ordnance Survey Grid Reference", un sistema di riferimento geografico utilizzato nel Regno Unito per identificare la posizione di un punto sulla superficie terrestre. Questa variabile identifica la coordinata a Est secondo questo sistema;
-* Location Nothing OSGR: la coordinata a Nord analoga alla variabile precedente;
-* Longitude: coordinata di longitudine;
-* Latitude: coordinata di latitudine;
-* Date: data dell'incidente;
-* Year: esclusivamente l'anno dell'incidente;
-* Police force: la squadra di polizia relativa all'area geografica che interviene sull'incidente;
-* Number of vehicles: numero di veicoli coinvolti nell'incidente;
-* Number of casualities: numero di vittime/feriti coinvolti nell'incidente;
-* Day of the week: giorno della settimana dell'incidente;
-* Time: orario dell'incidente;
-* Local Authority District: codice identificativo della suddivisione amministrativa di una contea o a una regione dove si è verificato l'incidente;
-* Local Authority Highway: codice identificativo dell'autorità locale responsabile della manutenzione, sicurezza e miglioramento della strada dove si è verificato l'incidente. Include la segnaletica stradale, la pavimentazione, la gestione del traffico ed altre aree di competenza;
-* First road class: codice identificativo del tipo di strada dove si è verificato l'incidente. A questa categoria appartengono autostrade, strade a carreggiata doppia, strade principali urbane, etc;
-* First road number: numero identificativo della strada dell'incidente (First Road);
-* Second road class: codice identificativo del tipo di strada dove si è verificato l'incidente. A questa categoria appartengono strade a carreggiata singola, strade urbane secondarie, strade di quartiere, etc;
-* Second road number: numero identificativo della strada dell'incidente (Second Road);
-* Speed limit: limite di velocità della strada dove si è verificato l'incidente;
+* X: a progressive, unique for each observation;
+* Accident Index: numerical code identifying each observation;
+* Location Easting OSGR: the acronym stands for "Ordnance Survey Grid Reference", a geographic reference system used in the United Kingdom to identify the position of a point on the Earth's surface. This variable identifies the East coordinate according to this system;
+* Location Nothing OSGR: the North coordinate analogous to the previous variable;
+* Longitude: longitude coordinate;
+* Latitude: latitude coordinate;
+* Date: date of the accident;
+* Year: exclusively the year of the accident;
+* Police force: the police force related to the geographical area that intervenes on the accident;
+* Number of vehicles: number of vehicles involved in the accident;
+* Number of casualties: number of victims/injured involved in the accident;
+* Day of the week: day of the week of the accident;
+* Time: time of the accident;
+* Local Authority District: identification code of the administrative subdivision of a county or region where the accident occurred;
+* Local Authority Highway: identification code of the local authority responsible for the maintenance, safety and improvement of the road where the accident occurred. It includes road signs, paving, traffic management and other areas of competence;
+* First road class: identification code of the type of road where the accident occurred. This category includes motorways, dual carriageways, urban main roads, etc;
+* First road number: identification number of the accident road (First Road);
+* Second road class: identification code of the type of road where the accident occurred. This category includes single carriageway roads, secondary urban roads, neighborhood roads, etc;
+* Second road number: identification number of the accident road (Second Road);
+* Speed limit: speed limit of the road where the accident occurred;
 
-_Variabili categoriche:_
+_Categorical variables:_
 
-* Accident severity: gravità dell'incidente, su una scala da 1 (più grave) a 3 (meno grave);
-* Road type: dove si è verificato l'incidente - strada a carreggiata singola, doppia, rotonda, etc;
-* Junction control: tipo di gestione del traffico nei casi di incroci - vigile, semaforo, nulla, etc;
-* Pedestrian crossing human control: tipo di gestione dell'attraversamento pedonale ove applicabile - persona autorizzata, con segnaletica, nulla, etc;
-* Pedestrian crossing physical facilities: tipo di infrastruttura per consentire l'attraversamento pedonale ove applicabile - semaforo, strisce pedonali, nulla, etc;
-* Light conditions: condizioni di visibilità - luce diurna, oscurità con lampioni, buio, etc;
-* Weather conditions: condizioni atmosferiche - pioggia, nebbia, forti venti, etc;
-* Road surface conditions: condizioni del manto stradale - bagnato, ghiacciato, nulla, etc;
-* Special conditions at site: condizioni particolari circostanziali - semaforo malfunzionante, lavori in corso lungo la carreggiata, fango, etc;
-* Carriageway hazards: ostacoli sulla carreggiata - attraversamento di animali, veicolo ostruendo il passaggio, coinvolgimento in un incidente a catena, etc;
-* Urban or rural area: variabile binaria che indica se la strada dove è avvenuto l'incidente fa parte di un'area urbana o extraurbana;
-* "Did police officer attend scene of accident?": variabile binaria che indica se l'incidente stradale ha richiesto o no l'intervento delle forze dell'ordine;
-* LSOA of accident location: la sigla sta per 'Lower Layer Super Output Area', codice numerico identificativo dell'unità geografica secondo una suddivisione caratteristica del National Statistics and Registration Service nel Regno Unito, per pubblicare dati statistici;
+* Accident severity: severity of the accident, on a scale from 1 (most serious) to 3 (least serious);
+* Road type: where the accident occurred - single carriageway, dual carriageway, roundabout, etc;
+* Junction control: type of traffic management in the case of intersections - police officer, traffic light, none, etc;
+* Pedestrian crossing human control: type of pedestrian crossing management where applicable - authorized person, with signs, none, etc;
+* Pedestrian crossing physical facilities: type of infrastructure to allow pedestrian crossing where applicable - traffic light, pedestrian crossing, none, etc;
+* Light conditions: visibility conditions - daylight, darkness with streetlights, dark, etc;
+* Weather conditions: weather conditions - rain, fog, strong winds, etc;
+* Road surface conditions: road surface conditions - wet, icy, none, etc;
+* Special conditions at site: special conditions at the site - malfunctioning traffic light, roadworks along the carriageway, mud, etc;
+* Carriageway hazards: obstacles on the carriageway - animal crossing, vehicle obstructing the passage, involvement in a chain accident, etc;
+* Urban or rural area: binary variable indicating whether the road where the accident occurred is part of an urban or extra-urban area;
+* "Did police officer attend scene of accident?": binary variable indicating whether the road accident required the intervention of the police or not;
+* LSOA of accident location: the acronym stands for 'Lower Layer Super Output Area', numerical code identifying the geographical unit according to a subdivision characteristic of the National Statistics and Registration Service in the United Kingdom, to publish statistical data;
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 #intall.packages("webshot")
@@ -107,49 +108,39 @@ library(superheat)
 
 ___
 
-## Pre-processamento dei dati e pulizia del dataset
+## Data Pre-processing and Dataset Cleaning
 
-Prima di procedere con la visualizzazione di grafici esplicativi, o qualsiasi altra analisi, è necessario fare delle operazioni per correggere imperfezioni nei dati e renderli omogenei.
+Before proceeding with the visualization of explanatory graphs, or any other analysis, it is necessary to perform operations to correct imperfections in the data and make it homogeneous.
 
 ```{r preprocessing, echo=FALSE, message=FALSE, warning=FALSE}
 valori_null <- is.na(source)
 
-source_null <- source[rowSums(valori_null)>0, ] #numero di valori nulli pari a 101, irrilevanti confrontati con le dimensioni del dataset
+source_null <- source[rowSums(valori_null)>0, ] # number of null values equal to 101, irrelevant compared to the dataset size
 
-data <- na.omit(source) #eliminazione dal dataset
+data <- na.omit(source) # removal from the dataset
 
-# dalla colonna date viene estrapolato esclusivamente il mese. Viene creata un'altra colonna con questa informazione e la colonna originale date viene rimossa
-
+# from the date column, only the month is extracted. Another column is created with this information, and the original date column is removed.  
 data$Date <- as.Date(data$Date, format = "%d/%m/%Y") #conversione del formato in data
-
 data$Month <- month(data$Date)
 
-# eliminazione colonne
-
+# column removal
 data <- data[ ,-c(1:4,11,14,16,17,21,22,31,32)]
-
 dummy <- data
-
 dummy <- dummy %>% relocate(Day_of_Week, .after = "Month")
-
 dummy <- dummy %>% relocate(Time, .after = "Day_of_Week")
-
 data <- dummy
 
-# modifica alla colonna time: vengono mantenute solo le ore ed eliminati i minuti
+# modification to the time column: only the hours are kept, and the minutes are removed.  
 data$Time <- substr(data$Time, 1, 2)
 
-# Eliminazione dei duplicati
-
+# removal of duplicates
 duplicati <- data[duplicated(data) | duplicated(data, fromLast = TRUE), ]
 
-# si mantiene solo la prima occorrenza di ciascun valore duplicato nella colonna
+# only the first occurrence of each duplicate value in the column is kept.  
 data <- data[!duplicated(data), ]
-
 data_backup <- data
 
-#rimozione dall'environment per ordine
-
+#removal from the environment
 remove(duplicati)
 remove(source_null)
 remove(valori_null)
@@ -157,32 +148,31 @@ remove(dummy)
 
 ```
 
-Dapprima viene effettuato un conteggio delle osservazioni che contengono valori nulli o Na nelle celle di qualsiasi variabile. Risultano essere diametralmente inferiori del totale delle righe (pari a 101), di conseguenza vengono eliminate dal dataset.
+First, a count is performed of the observations that contain null or Na values in the cells of any variable. These are found to be significantly lower than the total number of rows (101), so they are removed from the dataset.
 
-A seguito delle righe, è conveniente effettuare una scrematura anche sulle colonne. Vi sono difatti attributi ridondanti o informazioni che non sono utili all'analisi, come per esempio tutte le diverse coordinate appartenenti a sistemi diversi o i codici progressivi univoci. Nella sottospecie, vengono effettuate le seguenti modifiche:
+Following the removal of rows, it is also convenient to perform a reduction on the columns. There are redundant attributes or information that are not useful for the analysis, such as the different coordinates belonging to different systems or the unique progressive codes. In this context, the following changes are made:
 
-* X e Accident Index vengono rimossi;
-* Location EASTing OSGR e Location NORTHing OSGR sono ridondanti, poiché in possesso di latitudine e longitudine;
-* Discorso simile per LSOA of Accident Location: si tratta di un'altra maniera di localizzare gli incidenti;
-* La variabile sulla presenza o no di un agente di polizia sul luogo dell'incidente è ambigua se confrontata con la variabile 'Police Force'. Viene rimossa;
-* Le variabili che descrivono la tipologia di strada, First road class e First road number (così come i corrispettivi Second road class e Second road number) sono marginali rispetto all'analisi condotta. Vengono rimosse;
-* Local Authority District e Local Authority Highway vanno di pari passo, prevedendo un'alta correlazione, la prima viene eliminata;
-* L'informazione relativa al mese dell'incidente viene estrapolata dalla colonna ove è contenuta l'intera data e trapiantata in un'altra variabile "Month". La data, in formato stringa, viene eliminata;
-* L'ora dell'incidente viene decurtata dei minuti.
+* X and Accident Index are removed;
+* Location EASTing OSGR and Location NORTHing OSGR are redundant, as latitude and longitude are available;
+* Similar reasoning applies to LSOA of Accident Location: it is another way of locating the accidents;
+* The variable concerning the presence of a police officer at the accident scene is ambiguous when compared to the variable 'Police Force'. It is removed;
+* The variables describing the type of road, First road class and First road number (as well as the corresponding Second road class and Second road number) are marginal to the analysis conducted. They are removed;
+* Local Authority District and Local Authority Highway go hand in hand, with a high correlation, so the first one is eliminated;
+* The information regarding the month of the accident is extracted from the column containing the full date and transferred to another variable "Month". The date, in string format, is deleted;
+* The time of the accident is truncated to remove the minutes.
 
-Tutte le variabili restanti sono infine state sottoposte ad uno screening in cerca di eventuali duplicati. Nelle sezioni a seguire, sono mostrate ulteriori verifiche per spiegarne il comportamento e collegarlo all'incidenza degli incidenti stradali.
-
+All remaining variables have been subjected to screening for any duplicates. In the following sections, further checks are shown to explain their behavior and link it to the incidence of road accidents.  
 ___
 
-## Relazioni tra le variabili: matrice di correlazione
+## Relationships between variables: correlation matrix
 
-Alla ricerca di pattern e tendenze 'nascoste' tra i dati, ci si avvale spesso della matrice di correlazione, poiché fornisce insight preziosi sulle relazioni tra le variabili. Attraverso questo strumento, intuitivamente, è semplice comprendere quali variabili sono correlate e in che misura, fornendo così una base solida per prendere decisioni informate.
+In search of 'hidden' patterns and trends within the data, the correlation matrix is often used, as it provides valuable insights into the relationships between variables. Through this tool, it is intuitively easy to understand which variables are correlated and to what extent, thus providing a solid foundation for making informed decisions.
 
-Ai fini dell'analisi di questo lavoro, lo scopo principale di questo passaggio è di selezionare le variabili più rilevanti da includere nella successiva esplorazione dei dati, ma generalmente visualizzare le correlazioni aiuta a individuare potenziali problemi di multicollinearità. Questi, infatti, influenzano negativamente la precisione dei modelli predittivi durante l'implementazione di algoritmi di classificazione o regressione.
+For the purposes of this analysis, the main goal of this step is to select the most relevant variables to include in the subsequent data exploration, but generally, visualizing the correlations helps identify potential multicollinearity issues. These, in fact, negatively affect the accuracy of predictive models when implementing classification or regression algorithms.
 
-In sintesi, l'analisi delle matrici di correlazione è un passo essenziale nell'analisi dei dati poiché fornisce una panoramica chiara delle relazioni tra le variabili e guida il processo decisionale in modo più efficace e accurato.
+In summary, analyzing correlation matrices is an essential step in data analysis as it provides a clear overview of the relationships between variables and guides the decision-making process more effectively and accurately.
 
-Sono qui riassunte le correlazioni più forti all'interno del dataset:
+Here are the strongest correlations within the dataset:
 
 ```{r correlation, echo=FALSE, message=FALSE, warning=FALSE}
 encode_labels <- function(column) {
@@ -191,51 +181,51 @@ encode_labels <- function(column) {
   return(labels_to_numbers)
 }
 
-# per generare la matrice di correlazione, si sfrutta un dataset temporaneo creato ad-hoc con variabili di tipo numerico
+# to generate the correlation matrix, a temporary dataset created specifically for this purpose is used, containing numeric variables.
 
 data_temp <- data %>% mutate_if(is.character, encode_labels)
 cormatrix <- cor(data_temp)
 
 high_correlations <- which(abs(cormatrix) > 0.49 & cormatrix != 1, arr.ind = TRUE)
 
-print("Coppie di variabili con correlazione sopra 0.49:")
+print("Pairs of variables with a correlation above 0.49:")
 for (i in 1:nrow(high_correlations)) {
   row_index <- high_correlations[i, 1]
   col_index <- high_correlations[i, 2]
   correlation_value <- cormatrix[row_index, col_index]
-  
+
   variable1 <- colnames(cormatrix)[row_index]
   variable2 <- colnames(cormatrix)[col_index]
   
-  cat(sprintf("Coppia di variabili: %s, %s - Correlazione: %.2f\n", variable1, variable2, correlation_value))
+  cat(sprintf("Pairs of variables: %s, %s - Correlazione: %.2f\n", variable1, variable2, correlation_value))
 }
 ```
 
-Mostrandole graficamente, si può ricorrere alla Heatmap:
+To display them graphically, a Heatmap can be used:
 
 ```{r matrix, echo=TRUE, message=FALSE, warning=FALSE}
 
-# Heatmap correlazioni
+# Correlation Heatmap
 heatmap(cormatrix, 
         col = colorRampPalette(c("blue", "white", "red"))(100),
-        main = "Heatmap della Matrice di Correlazione",
+        main = "Heatmap of the Correlation Matrix",
         margins = c(9, 9),
         cexRow = 1, cexCol = 1)
 ```
 
-Non c'è una grande varietà di correlazioni forti. La prima, tra il limite di velocità e la variabile binaria che indica se si tratti di una strada urbana o una extraurbana, è abbastanza autoesplicativa: i limiti di velocità tendono ad essere ben differenti tra le due categorie. Mentre la correlazione (più alta) tra Local Authority Highway e Police Force si spiega poichè entrambe le variabili fanno riferimento alla stessa area geografica.
+There is not much variety in strong correlations. The first one, between the speed limit and the binary variable indicating whether the road is urban or extra-urban, is quite self-explanatory: speed limits tend to be quite different between the two categories. Meanwhile, the higher correlation between Local Authority Highway and Police Force is explained by the fact that both variables refer to the same geographical area.
 
-Nonostante ciò, il fatto che le correlazioni non implichino causalità non scoraggia l'analisi alla ricerca di pattern significativi. Si procede dunque con la sezione di data visualization.
-
-___
-
-# Data visualization sulle variabili
-
-Nella presente sezione, le variabili restanti nel dataset vengono sottoposte ad un'analisi visiva attraverso istogrammi, mappe ad albero, mappe geografiche, etc. In particolare si noti che, in tutti gli istogrammi, a colore più scuro corrisponde un maggior volume di occorrenze.
+However, the fact that correlations do not imply causality does not discourage the analysis from searching for significant patterns. Therefore, we proceed with the data visualization section.
 
 ___
 
-## Squadra di polizia
+# Data visualization on the variables
+
+In this section, the remaining variables in the dataset are subjected to visual analysis through histograms, tree maps, geographic maps, etc. In particular, note that in all histograms, darker colors correspond to a higher volume of occurrences.
+
+___
+
+## Police force
 
 ```{r police force, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -256,11 +246,11 @@ bar_policeforce <- plot_ly(data = as.data.frame(table(data$Police_Force)),
 bar_policeforce
 ```
 
-Su questa prima variabile, emerge una prevalenza di interventi in caso di incidente da parte della squadra associata convenzionalmente al valore 1. Questa informazione tornerà utile all'analisi più avanti, quando verrà circoscritta all'area di competenza relativa alla squadra 1.
+For this first variable, there is a prevalence of interventions in case of accidents by the police force associated conventionally with the value 1. This information will be useful for the analysis later on, when it will be narrowed down to the area of competence related to team 1.
 
 ___
 
-## Numero di veicoli coinvolti
+## Number of vehicles involved
 
 ```{r number vehicles, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -281,7 +271,7 @@ bar_numberofvehicles <- plot_ly(data = as.data.frame(table(data$Number_of_Vehicl
 bar_numberofvehicles
 ```
 
-Osservando il grafico, risulta da subito evidente come oltre i cinque veicoli coinvolti nel sinistro, le osservazioni si facciano sempre più rade. Per completezza, si fissa un upper bound a 7 veicoli (per mantenere esclusivamente i valori della variabile con più di 500 osservazioni), e le restanti, essendo irrilevanti in volume, vengono considerate outliers a tutti gli effetti ed eliminate dal dataset. Di seguito, l'istogramma aggiornato:
+Looking at the graph, it is immediately evident that beyond five vehicles involved in the incident, the observations become increasingly sparse. For completeness, an upper bound is set at 7 vehicles (to keep only the values of the variable with more than 500 observations), and the remaining, being irrelevant in volume, are considered outliers and removed from the dataset. Below is the updated histogram:
 
 ```{r number vehicles 2, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -303,10 +293,9 @@ bar_numberofvehicles <- plot_ly(data = as.data.frame(table(data$Number_of_Vehicl
 
 bar_numberofvehicles
 ```
-
 ___
 
-## Numero di feriti/vittime
+## Number of injuries/victims
 
 ```{r casualities, echo=FALSE, message=FALSE, warning=FALSE}
 bar_numberofcasualities <- plot_ly(data = as.data.frame(table(data$Number_of_Casualties)),
@@ -326,7 +315,7 @@ bar_numberofcasualities <- plot_ly(data = as.data.frame(table(data$Number_of_Cas
 bar_numberofcasualities
 ```
 
-Anche nel caso delle persone che hanno subìto danni nell'incidente, il risultato è analogo al caso anteriore. Anche qui vengono eliminate le osservazioni (outliers) con più di 8 feriti o vittime.
+In the case of people who have suffered harm in the accident, the result is similar to the previous case. Here too, observations (outliers) with more than 8 injuries or victims are removed.
 
 ```{r casualities 2, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -348,10 +337,9 @@ bar_numberofcasualities <- plot_ly(data = as.data.frame(table(data$Number_of_Cas
 
 bar_numberofcasualities
 ```
-
 ___
 
-## Anno dell'incidente
+## Year of the accident
 
 ```{r year, echo=FALSE, message=FALSE, warning=FALSE}
 bar_year <- plot_ly(data = as.data.frame(table(data$Year)),
@@ -371,11 +359,11 @@ bar_year <- plot_ly(data = as.data.frame(table(data$Year)),
 bar_year
 ```
 
-Si può notare un andamento decrescente nella numerosità degli incidenti stradali nel corso degli anni, a parte per una piccola inversione di trend tra il 2013 e il 2014. Anche questo fenomeno verrà analizzato più nel dettaglio successivamente.
+A decreasing trend in the number of road accidents over the years can be observed, except for a small reversal between 2013 and 2014. This phenomenon will also be analyzed in more detail later.
 
 ___
 
-## Giorno della settimana
+## Day of the week
 
 ```{r weekday, echo=FALSE, message=FALSE, warning=FALSE}
 bar_dayoftheweek <- plot_ly(data = as.data.frame(table(data$Day_of_Week)),
@@ -397,15 +385,15 @@ bar_dayoftheweek <- plot_ly(data = as.data.frame(table(data$Day_of_Week)),
 bar_dayoftheweek
 ```
 
-Contrariamente a quanto ci si aspetterebbe, nell'arco dei nove anni, il numero di incidenti verificatosi tra il sabato e la domenica è inferiore rispetto al resto della settimana, con un picco il venerdì che è superiore alla domenica, ad esempio, di circa di 80.000 osservazioni.
+Contrary to what one might expect, over the nine years, the number of accidents occurring between Saturday and Sunday is lower than the rest of the week, with a peak on Friday that is about 80,000 observations higher than on Sunday, for example.
 
-Si ritiene che questo possa essere legato al traffico dei giorni lavorativi, più incidente sulla pericolosità delle strade britanniche rispetto ad una potenziale movida del weekend.
+It is believed that this may be related to weekday traffic, which has a greater impact on the danger of British roads compared to a potential weekend nightlife.
 
-In ogni caso, è bene ricordare che questo istogramma fa riferimento esclusivamente al numero di incidenti e prescinde dalla loro gravità o dal numero di veicoli e persone coinvolti. Più avanti nell'analisi verrà mostrato come compaiano delle dinamiche interessanti quando si combinano tra loro questi attributi delle osservazioni.
+In any case, it is important to remember that this histogram refers exclusively to the number of accidents and does not consider their severity or the number of vehicles and people involved. Later in the analysis, interesting dynamics will be shown when combining these attributes of the observations.
 
 ___
 
-## Orario dell'incidente
+## Time of the accident
 
 ```{r time, echo=FALSE, message=FALSE, warning=FALSE}
 data$Time <- as.integer(data$Time)
@@ -428,15 +416,15 @@ bar_time <- plot_ly(data = as.data.frame(table(data$Time)),
 bar_time
 ```
 
-Altro grafico interessante, perché evidenzia come gli incidenti si verifichino con più frequenza in corrispondenza degli orari lavorativi d'ufficio: alle 8:00 quando generalmente inizia la giornata lavorativa, scolastica e accademica e poi ancora nella fascia tra le 15:00 e le 17:00 per la sua conclusione. Inoltre, notoriamente, in Gran Bretagna l'ora di cena è anticipata rispetto allo standard mediterraneo: questa componente potrebbe spiegare ulteriormente poichè a partire dalle 18:00 le occorrenze vadano a decrescere.
+Another interesting graph, as it highlights how accidents occur more frequently during office working hours: at 8:00 when the work, school, and academic day generally begins, and then again between 15:00 and 17:00 as it concludes. Additionally, it is well known that in the UK, dinner time is earlier than the Mediterranean standard: this component may further explain why occurrences decrease after 18:00.
 
-Si noti come la frequenza degli incidenti durante le ore notturne sia sorprendentemente bassa. Una supposizione ante-osservazione avrebbe portato ad immaginare che con la maggiore probabilità di: condizioni psicofisiche alterate e/o colpi di sonno dovuti a tarda ora o turni notturni, fosse invece questo l'orario con maggior numero di sinistri.
+Note how the frequency of accidents during nighttime hours is surprisingly low. A pre-observation assumption might have led one to imagine that, with the higher probability of altered psychological or physical conditions and/or drowsiness due to late hours or night shifts, this would actually be the time with the highest number of accidents.
 
-Si ipotizza una spiegazione di questa realtà esposta dai dati nel fatto che nel Regno Unito ci siano clima e abitudini sociali che portano i Britannici a trascorrere il loro tempo libero principalmente in casa o in luoghi chiusi; unito alla cultura gastronomica citata in precedenza che prevede pasti anticipati rispetto ad altri paesi o regioni, dinamica che spiegherrebbe il poco traffico in tarda notte.
+A potential explanation for this reality presented by the data is that in the UK, climate and social habits lead Britons to spend their free time mainly indoors or in enclosed places; combined with the earlier eating culture mentioned earlier, this dynamic might explain the low traffic during late night hours.
 
 ___
 
-## Gravità dell'incidente
+## Severity of the accident
 
 ```{r severity, echo=FALSE, message=FALSE, warning=FALSE}
 bar_accidentseverity <- plot_ly(data = as.data.frame(table(data$Accident_Severity)),
@@ -456,13 +444,13 @@ bar_accidentseverity <- plot_ly(data = as.data.frame(table(data$Accident_Severit
 bar_accidentseverity
 ```
 
-Per quanto riguarda la gravità degli incidenti, è evidente come la stragrande maggioranza di essi si trovi nella terza categoria (gravità più bassa). 
+Regarding the severity of the accidents, it is evident that the vast majority of them fall into the third category (lowest severity).
 
 ___
 
-## Tipologia di strada
+## Type of road
 
-Prima ancora di visualizzare l'istogramma della distribuzione per tipologia di strada, salta all'occhio la presenza di una piccola percentuale di osservazioni non categorizzate (valore della variabile "Unknown"). Si procede alla loro rimozione e, successivamente, si osserva il grafico.
+Before even visualizing the histogram of road type distribution, the presence of a small percentage of uncategorized observations (value "Unknown") stands out. These are removed, and then the graph is observed.
 
 ```{r road type, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -487,11 +475,11 @@ bar_roadtype <- plot_ly(data = as.data.frame(table(data$Road_Type)),
 bar_roadtype
 ```
 
-La maggior parte dei sinistri si è verificata in strade a singola corsia (due corsie con doppio senso di marcia all'interno di una carreggiata).
+# The majority of accidents occurred on single-lane roads (two lanes with two-way traffic within a single carriageway).
 
 ___
 
-## Limite di velocità
+## Speed limit
 
 ```{r speed limit, echo=FALSE, message=FALSE, warning=FALSE}
 bar_speed <- plot_ly(data = as.data.frame(table(data$Speed_limit)),
@@ -511,7 +499,7 @@ bar_speed <- plot_ly(data = as.data.frame(table(data$Speed_limit)),
 bar_speed
 ```
 
-La modifica effettuata su questa variabile è stata di eliminare le occorrenze di limite di velocità inferiore alle 20 miglia orarie, in quanto in volume irrilevante all'analisi. Il grafico senza outliers:
+The modification made to this variable was to remove occurrences with speed limits lower than 20 miles per hour, as they are of negligible volume for the analysis. The graph without outliers:
 
 ```{r speed limit 2, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -536,7 +524,7 @@ bar_speed
 
 ___
 
-## Gestione del traffico
+## Traffic management
 
 ```{r junction control, echo=FALSE, message=FALSE, warning=FALSE}
 bar_junction <- plot_ly(data = as.data.frame(table(data$Junction_Control)),
@@ -556,7 +544,7 @@ bar_junction <- plot_ly(data = as.data.frame(table(data$Junction_Control)),
 bar_junction
 ```
 
-Le due categorie predominanti sono quella dell'assenza di controllo (nessun segnale o vigile a gestire il traffico) o i casi laddove questa variabile non si applica (incidenti non dovuti a incroci). Un altro metodo più grafico di visualizzare la distribuzione dei casi a seconda della gestione del traffico è attraverso una mappa ad albero.
+The two predominant categories are the absence of control (no signs or traffic officers managing traffic) or cases where this variable does not apply (accidents not caused by intersections). Another, more graphic method of visualizing the distribution of cases based on traffic management is through a tree map.
 
 ```{r junction control 2, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -576,7 +564,7 @@ ggplot(plotdata,
 
 ___
 
-## Gestione dell'attraversamento pedonale
+## Pedestrian crossing management
 
 ```{r pedestrian human control, echo=FALSE, message=FALSE, warning=FALSE}
 bar_pedControl <- plot_ly(data = as.data.frame(table(data$Pedestrian_Crossing.Human_Control)),
@@ -598,11 +586,11 @@ bar_pedControl
 data <- data[ ,-11]
 ```
 
-Dal grafico riguardante la gestione (e anche la presenza o no) di un attraversamento pedonale, si evince come la variabile sia irrilevante, poiché più del 99% delle osservazioni rientra nell'ultima categoria: che non era presente, sul luogo dell'incidente, nessun attraversamento pedonale nel raggio di 50 metri. Questo attributo viene eliminato dal dataset.
+From the graph regarding the management (and also the presence or absence) of a pedestrian crossing, it is clear that the variable is irrelevant, as more than 99% of the observations fall into the last category: where no pedestrian crossing was present within 50 meters of the accident site. This attribute is removed from the dataset.
 
 ___
 
-## Tipologia di attraversamento pedonale
+## Type of pedestrian crossing
 
 ```{r facility pedestrian crossing, echo=FALSE, message=FALSE, warning=FALSE}
 bar_pedFacility <- plot_ly(data = as.data.frame(table(data$Pedestrian_Crossing.Physical_Facilities)),
@@ -623,11 +611,11 @@ bar_pedFacility
 
 data <- data[ ,-11]
 ```
-Analogamente alla considerazione precedente sulla variabile relativa alla gestione degli attraversamenti pedonali, anche qui la maggior parte delle osservazioni rientra nella categoria dell'assenza di attraversamento pedonale nel raggio di 50 metri. Anche questa variabile viene eliminata.
+Similarly to the previous consideration regarding the variable related to pedestrian crossing management, here too, the majority of observations fall into the category of absence of a pedestrian crossing within 50 meters. This variable is also removed.
 
 ___
 
-## Condizioni di visibilità
+## Visibility conditions
 
 ```{r light conditions, echo=FALSE, message=FALSE, warning=FALSE}
 bar_light <- plot_ly(data = as.data.frame(table(data$Light_Conditions)),
@@ -647,11 +635,11 @@ bar_light <- plot_ly(data = as.data.frame(table(data$Light_Conditions)),
 bar_light
 ```
 
-Viste le scarse osservazioni in alcune delle categorie mostrate nel grafico, si effettuano delle semplificazioni:
+Given the limited observations in some of the categories shown in the graph, simplifications are made:
 
-* La categoria "Street Lighthning Unknown" viene eliminata: non fornisce informazioni aggiuntive;
-* Le categorie relative all'oscurità, sia causata dai lampioni spenti sia dall'assenza di luce artificiale, sono state unificate;
-* Le categorie rimanenti sono state rinominate.
+* The "Street Lighting Unknown" category is removed: it provides no additional information;
+* The categories related to darkness, whether caused by streetlights being off or by the absence of artificial light, are merged;
+* The remaining categories are renamed.
 
 ```{r light conditions 2, echo=TRUE, message=FALSE, warning=FALSE}
 
@@ -665,7 +653,7 @@ data$Light_Conditions[data$Light_Conditions == "Darkness: Street lights present 
 data$Light_Conditions[data$Light_Conditions == "Daylight: Street light present"] <- "Daylight"
 ```
 
-A seguito di tali modifiche, il nuovo istogramma:
+Following these modifications, the new histogram:
 
 ```{r light conditions 3, echo=FALSE, message=FALSE, warning=FALSE}
 bar_light <- plot_ly(data = as.data.frame(table(data$Light_Conditions)),
@@ -687,15 +675,15 @@ bar_light
 
 ___
 
-## Condizioni atmosferiche
+## Weather conditions
 
-Prima ancora di visualizzare l'istogramma della distribuzione per le condizioni atmosferiche, salta all'occhio la presenza di una piccola percentuale di osservazioni non categorizzate (valore della variabile "Unknown"). Si procede alla loro rimozione e, successivamente, si osserva il grafico.
+Before even visualizing the histogram of weather condition distribution, the presence of a small percentage of uncategorized observations (value "Unknown") stands out. These are removed, and then the graph is observed.
 
 ```{r weather, echo=FALSE, message=FALSE, warning=FALSE}
 
 table(data$Weather_Conditions)
 
-# eliminazione categoria"unknown"
+# Removal of "Unknown" category
 
 data <- data[data$Weather_Conditions != "Unknown", ]
 
@@ -716,18 +704,16 @@ bar_weather <- plot_ly(data = as.data.frame(table(data$Weather_Conditions)),
 bar_weather
 ```
 
-Vengono effettuate modifiche simili al caso precedente:
+Similar modifications are made to the previous case:
 
 ```{r weather2, echo=TRUE, message=FALSE, warning=FALSE}
 
-# unione delle categorie di pioggia (con & senza vento)
-
+# merging of rain categories (with & without wind)
 data$Weather_Conditions[data$Weather_Conditions == "Raining with high winds"] <- "Rain"
 data$Weather_Conditions[data$Weather_Conditions == "Raining without high winds"] <- "Rain"
 data$Weather_Conditions[data$Weather_Conditions == "Fine without high winds"] <- "Fine"
 
-# tutte le categorie rimanenti fuse in "other"
-
+# all remaining categories merged into "other"
 data$Weather_Conditions[data$Weather_Conditions != "Rain" & data$Weather_Conditions != "Fine"] <- "Other"
 
 table(data$Weather_Conditions)
@@ -752,13 +738,13 @@ bar_weather <- plot_ly(data = as.data.frame(table(data$Weather_Conditions)),
 bar_weather
 ```
 
-Nel caso in cui insospettisca il fatto che, proprio nella nazione stereotipicamente riconosciuta come una delle più piovose in Europa, ci siano cosi pochi casi di incidenti durante la pioggia, è bene sottolineare che la categoria "fine" non è da intendersi in linea con l'immaginario comune.
+In case one suspects that, in a country stereotypically recognized as one of the rainiest in Europe, there are so few cases of accidents during rain, it is important to note that the "Fine" category should not be understood in line with common imagination.
 
-In "Fine" potrebbe rientrare a tutti gli effetti una condizione di pioggia leggera, perché si sta parlando di condizioni di viabilità: un vento debole o cielo coperto, che non compromettono significativamente le capacità di guida, rientreranno in questa categoria.
+"Fine" could indeed include light rain conditions, as it refers to road conditions: light wind or overcast sky, which do not significantly impair driving abilities, would fall into this category.
 
 ___
 
-## Condizioni del manto stradale
+## Road surface conditions
 
 ```{r pavement, echo=FALSE, message=FALSE, warning=FALSE}
 bar_drywet <- plot_ly(data = as.data.frame(table(data$Road_Surface_Conditions)),
@@ -778,18 +764,16 @@ bar_drywet <- plot_ly(data = as.data.frame(table(data$Road_Surface_Conditions)),
 bar_drywet
 ```
 
-Anche qui vengono effettuate modifiche simili al caso precedente:
+Similar modifications are made here as in the previous case:
 
 ```{r pavement2, echo=TRUE, message=FALSE, warning=FALSE}
 
-# "Normal" viene eliminata. "Flood" e "Snow" vengono aggiunte alla categoria "Wet/Damp":
-
+# "Normal" is removed. "Flood" and "Snow" are added to the "Wet/Damp" category.
 data <- data[data$Road_Surface_Conditions != "Normal", ]
-
 data$Road_Surface_Conditions[data$Road_Surface_Conditions %in% c("Flood (Over 3cm of water)", "Snow")] <- "Wet/Damp"
 ```
 
-Il nuovo istogramma:
+The new histogram:
 
 ```{r pavement3, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -812,7 +796,7 @@ bar_drywet
 
 ___
 
-## Condizioni particolari
+## Special conditions
 
 ```{r special, echo=FALSE, message=FALSE, warning=FALSE}
 bar_special <- plot_ly(data = as.data.frame(table(data$Special_Conditions_at_Site)),
@@ -831,16 +815,15 @@ bar_special <- plot_ly(data = as.data.frame(table(data$Special_Conditions_at_Sit
 
 bar_special
 
-# La categoria "none" costituisce il 97% circa del totale. Rimozione della colonna:
-
+# The "none" category constitutes approximately 97% of the total. Removal of the column:
 data <- data[,-14]
 ```
 
-C'è scarsa variabilità tra i dati, considerando che la categoria "None" costituisce circa il 97% del totale delle occorrenze. La variabile viene eliminata.
+There is little variability in the data, as the "None" category accounts for about 97% of the total occurrences. The variable is removed.
 
 ___
 
-## Ostacoli sulla carreggiata
+## Obstacles on the roadway
 
 ```{r carriageway, echo=FALSE, message=FALSE, warning=FALSE}
 bar_carriage <- plot_ly(data = as.data.frame(table(data$Carriageway_Hazards)),
@@ -862,13 +845,13 @@ bar_carriage
 data <- data[,-14]
 ```
 
-Discorso analogo anche per la variabile che indica se vi sono ostacoli o altri pericoli inattesi sulla carreggiata. Viene rimossa.
+A similar discussion applies to the variable indicating whether there are obstacles or other unforeseen dangers on the roadway. It is removed.
 
 ___
 
-## Urbane VS Extraurbane
+## Urban vs. Rural
 
-A questa variabile appartengono tre categorie. Tuttavia, la terza contiene solo una trentina di occorrenze, per cui viene eliminata dal dataset.
+This variable has three categories. However, the third category contains only about thirty occurrences, so it is removed from the dataset.
 
 ```{r urban, echo=FALSE, message=FALSE, warning=FALSE}
 data <- data[data$Urban_or_Rural_Area != 3, ]
@@ -892,7 +875,7 @@ bar_urban
 
 ___
 
-## Distretto di sicurezza stradale
+## Road safety district
 
 ```{r authority, echo=FALSE, message=FALSE, warning=FALSE}
 bar_district <- plot_ly(data = as.data.frame(table(data$Local_Authority_.Highway.)),
@@ -912,17 +895,17 @@ bar_district <- plot_ly(data = as.data.frame(table(data$Local_Authority_.Highway
 bar_district
 ```
 
-Disponendo delle coordinate relative a dove si sono verificati gli incidenti, una mappa della Gran Bretagna potrebbe rendere di più l'idea rispetto a questo istogramma, rendendo di conseguenza questa variabile ridondante.
+Given the coordinates of where the accidents occurred, a map of Great Britain could provide a clearer idea than this histogram, thus making this variable redundant.
 
 ___
 ___
 
-# Data visualization: analisi più approfondite
-## Mappe geografiche della Gran Bretagna
+# Data visualization: more in-depth analysis
+## Geographical maps of Great Britain
 
-Nella sezione a seguire, verranno analizzate diverse mappe geografiche dell'intera Gran Bretagna, e in particolare ci si concentrerà sull'area metropolitana di Londra. L'analisi dei dati sulle mappe geografiche è una pratica essenziale per comprendere e interpretare le relazioni spaziali all'interno dei dati. Per individuare eventuali modelli, tendenze e distribuzioni, mappare gli incidenti stradali potrebbe essere un'ottima strategia.
+In the following section, various geographical maps of Great Britain will be analyzed, with a particular focus on the Greater London area. The analysis of data on geographical maps is an essential practice for understanding and interpreting spatial relationships within the data. Mapping road accidents could be an excellent strategy to identify potential patterns, trends, and distributions.
 
-Questo tipo di analisi offre l'opportunità di esplorare le caratteristiche ambientali o infrastrutturali correlate agli incidenti, valutare l'impatto di interventi di sicurezza stradale ed eventualmente fornire a chi di dovere strumenti per pianificare interventi mirati per migliorare la sicurezza delle strade. 
+This type of analysis offers the opportunity to explore environmental or infrastructural characteristics related to accidents, assess the impact of road safety interventions, and potentially provide decision-makers with tools to plan targeted interventions to improve road safety.
 
 ```{r map1, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -935,11 +918,11 @@ UK_map <- get_map(location = c(lon = -2.3180, lat = 53.501014),
 ggmap(UK_map)
 ```
 
-Le tre mappe seguenti riflettono la densità degli incidenti distribuiti sull'intero territorio nazionale. Nello specifico, riferendosi ai tre livelli di gravità in cui sono classificati tutti i sinistri del dataset, verranno mostrate:
+# The following three maps reflect the density of accidents distributed across the entire national territory. Specifically, referring to the three levels of severity in which all accidents in the dataset are classified, the maps will show:
 
-* In <span style="color:#e15602;">arancione</span>, la densità degli incidenti di gravità bassa
-* In <span style="color:#df0602;">rosso</span>, la densità degli incidenti di gravità media
-* In <span style="color:#780000;">bordeaux</span>, la densità degli incidenti di gravità alta
+* In <span style="color:#e15602;">orange</span>, the density of low severity accidents
+* In <span style="color:#df0602;">red</span>, the density of medium severity accidents
+* In <span style="color:#780000;">burgundy</span>, the density of high severity accidents
 
 ```{r map2, echo=TRUE, message=FALSE, warning=FALSE}
 
@@ -962,31 +945,30 @@ map_UKseverity1 <- ggmap(UK_map) +
 map_UKseverity1
 ```
 
-Si evince soprattutto come, a prescindere dal grado di severità, gli incidenti si concentrino maggiormente nei centri urbani. Londra, in particolare, sembra essere l'area metropolitana a più alta densità di incidenti. Si fa largo l'ipotesi che, in particolare, ci sia un collegamento tra la squadra di polizia 1, che spiccava nell'istogramma durante l'analisi delle variabili, e la città di Londra.
+It is evident that, regardless of the severity level, accidents are concentrated mainly in urban areas. London, in particular, seems to be the metropolitan area with the highest accident density. The hypothesis arises that there might be a connection between Police Force 1, which stood out in the histogram during the variable analysis, and the city of London.
 
 ```{r map3, echo=TRUE, message=FALSE, warning=FALSE}
 
 bar_policeforce
 
-# si individui sulla mappa a quale area fa riferimento la squadra di polizia 1:
-
+# identify on the map which area refers to Police Force 1:
 ggmap(UK_map) + geom_point(data = subset(data, data$Police_Force == 1), aes(x = Longitude, y = Latitude), color = "red", size = 0.5)
 
 ```
 
-La mappa è inequivocabile: l'area sulla quale opera la 'Police Force' associata convenzionalmente al valore 1 è la capitale britannica. Ciò è coerente con i grafici di densità appena mostrati.
-Pertanto, si prosegue con un'analisi più dettagliata sulla sola città di Londra.
+The map is unequivocal: the area where the 'Police Force' conventionally associated with the value 1 operates is the British capital. This is consistent with the density graphs just shown.  
+Therefore, we proceed with a more detailed analysis focused solely on the city of London.
 
 ___
 
-## Mappe geografiche di Londra
+## Geographic maps of London.
 
 ```{r london, echo=TRUE, message=FALSE, warning=FALSE}
 data_london <- subset(data, data$Latitude >= 51.15 & data$Latitude <= 51.8 & data$Longitude >= -0.5 & data$Longitude <= 0.5)
 dim(data_london)
 ```
 
-Viste le dimensioni del dataset, sarebbe conveniente tentare di ridurre ulteriorimente le occorrenze osservate, o la mappa geografica risultante sarà illeggibile. Una scelta può essere effettuata limitando i dati da visualizzare ad un intervallo di tempo specifico. Viene osservata la distribuzione degli incidenti di anno in anno con un istogramma:
+Given the size of the dataset, it would be advisable to attempt to further reduce the observed occurrences, or the resulting geographic map will be illegible. One option is to limit the data to be displayed to a specific time range. The distribution of incidents year by year is observed with a histogram:
 
 ```{r london2, echo=FALSE, message=FALSE, warning=FALSE}
 bar_year <- plot_ly(data = as.data.frame(table(data_london$Year)),
@@ -1007,9 +989,9 @@ bar_year <- plot_ly(data = as.data.frame(table(data_london$Year)),
 bar_year
 ```
 
-Il numero di incidenti è rimasto piuttosto simile negli anni, senza discostarsi particolarmente dalla media del decennio. A differenza del trend osservato su tutto il terrirorio UK, nel caso di Londra non si evince un andamento decrescente.
+The number of incidents has remained fairly similar over the years, without deviating significantly from the decade's average. Unlike the trend observed across the entire UK territory, in the case of London, a decreasing trend is not evident.  
 
-In cerca di una tendenza, si decide di isolare gli incidenti di gravità 1 e 2:
+In search of a pattern, it is decided to isolate incidents of severity 1 and 2:
 
 ```{r london3, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(subset(data_london, Accident_Severity != 3), 
@@ -1019,11 +1001,11 @@ ggplot(subset(data_london, Accident_Severity != 3),
   labs(x="Anno", y = "Osservazioni", title = "Andamento degli incidenti di gravità 1 & 2", fill = "Gravità")
 ```
 
-Isolando gli incidenti più gravi, è emerso un trend decrescente più evidente. Considerando il piccolo aumento che si era registrato tra il 2013 e il 2014 a monte di questa selezione, si deduce che ad essere aumentati siano stati gli incidenti di gravità inferiore (categoria 3, esclusa da quest'ultimo grafico).
+By isolating the most severe incidents, a more evident decreasing trend has emerged. Considering the slight increase recorded between 2013 and 2014 prior to this selection, it can be deduced that the incidents that increased were those of lower severity (category 3, excluded from this latest graph).  
 
-A valle di ciò consideriamo l'ultimo anno di osservazioni (il 2014) per condurre l'analisi su Londra con focus sugli incidenti più gravi (1 & 2).
+Following this, we consider the last year of observations (2014) to conduct the analysis on London with a focus on the most severe incidents (1 & 2).  
 
-Il primo confronto che si decide di effettuare coinvolge la variabile del numero di veicoli coinvolti nel sinistro.
+The first comparison to be made involves the variable of the number of vehicles involved in the accident.
 
 ```{r london4, echo=FALSE, message=FALSE, warning=FALSE}
 data_london2014 <- subset(data_london, data_london$Year > 2013 & data_london$Accident_Severity != 3)
@@ -1046,7 +1028,7 @@ bar_numberofvehiclesln2014 <- plot_ly(data = as.data.frame(table(data_london2014
 
 bar_numberofvehiclesln2014
 
-# si visualizzano due e un veicolo sulla mappa
+# two and one vehicle are displayed on the map
 
 London_map <- get_map(location = c(lon = -0.1180, lat = 51.5099), maptype = "roadmap", zoom = 10)
 
@@ -1054,7 +1036,7 @@ ggmap(London_map) + geom_point(data = subset(data_london2014, Number_of_Vehicles
   geom_point(data = subset(data_london2014, Number_of_Vehicles == 2), aes(x = Longitude, y = Latitude), color = "blue", size = 0.5)
 ```
 
-Le due categorie più popolose (1 veicolo e 2 veicoli) sono rappresentate sulla mappa rispettivamente in rosso e in blu. Ad ogni modo, la dimensione del dataset non consente una visualizzazione adeguata. Si decide di analizzare la distribuzione di tali incidenti in fasce orarie:
+The two most populated categories (1 vehicle and 2 vehicles) are represented on the map in red and blue, respectively. However, the size of the dataset does not allow for an adequate visualization. It is decided to analyze the distribution of such incidents in time slots:
 
 ```{r london5, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1076,7 +1058,7 @@ bar_Ltime <- plot_ly(data = as.data.frame(table(data_london2014$Time)),
 bar_Ltime 
 ```
 
-Si procede alla creazione di tre fasce orarie: mattina, pomeriggio e notte.
+We proceed to create three time slots: morning, afternoon, and night.
 
 ```{r london6, echo=FALSE, message=FALSE, warning=FALSE}
 data_london2014$day_split <- data_london2014$Time 
@@ -1090,9 +1072,9 @@ ggmap(London_map) + geom_point(data = subset(data_london2014, day_split == "afte
 ggmap(London_map) + geom_point(data = subset(data_london2014, day_split == "night"), aes(x = Longitude, y = Latitude), color = "black", size = 1) + ggtitle("Notte")
 ```
 
-A parte una concentrazione di incidenti nel centro di Londra durante la notte, non si rilevano particolari informazioni. La mappa non evidenzia agglomerati di incidenti nella zona periferica, del centro urbano, o poligoni industriali chiari a seconda della fascia oraria.
+Apart from a concentration of incidents in central London during the night, no particular information is detected. The map does not highlight clusters of incidents in the peripheral area, the urban center, or clear industrial zones depending on the time slot.  
 
-Si decide di indagare dunque sui mesi dell'anno 2014 tramite istogramma e mappa ad albero.
+It is therefore decided to investigate the months of the year 2014 using a histogram and a tree map.
 
 ```{r london7, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1115,7 +1097,7 @@ bar_month <- plot_ly(data = as.data.frame(table(data$Month)),
 
 bar_month
 
-# Mappa ad albero:
+# Tree map:
 
 plotdata <- data_london2014 %>%
   count(Month)
@@ -1132,16 +1114,16 @@ ggplot(plotdata,
 
 ```
 
-Anche prendendo in esame i mesi, sembrerebbe non emergere nessun pattern rilevante (contrariamente a quanto si immaginerebbe pensando al traffico delle vacanze estive o del periodo natalizio/altre festività).
+Even when examining the months, no significant pattern seems to emerge (contrary to what one might expect, considering the traffic during summer holidays or the Christmas period/other holidays).
 
 ___
 ___
 
-# Il caso di Londra: relazioni tra le variabili
+# The case of London: relationships between variables
 
-Si prosegue analizzando la relazione tra variabili con gli istogrammi in percentuale: per poter fare un'analisi significativa sarà necessario investigare i casi particolari uno ad uno.
+We proceed by analyzing the relationship between variables using percentage histograms: to conduct a meaningful analysis, it will be necessary to investigate specific cases one by one.
 
-## Visibilità e condizioni del manto stradale
+## Visibility and road surface conditions
 
 ```{r var1, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1155,13 +1137,12 @@ ggplot(data_london2014,
   scale_y_continuous(labels = scales::percent_format())
 ```
 
-In condizioni di buona visibilità, i dati riflettono che gli incidenti si verificano prevalentemente con l'asfalto asciutto (e con percentuale minima di ghiaccio): questo trova spiegazione anche nella temperatura del giorno (più alta rispetto alla notte) che consente al ghiaccio di sciogliersi, mentre la luce aiuta il guidatore ad individuare eventuali pericoli legati all'asfalto bagnato.
+In conditions of good visibility, the data reflects that accidents predominantly occur on dry asphalt (with a minimal percentage on ice): this can also be explained by the daytime temperature (higher than at night), which allows ice to melt, while light helps the driver identify potential hazards related to wet asphalt.  
 
-Durante la notte, le percentuali di incidenti con asfalto bagnato o ghiacciato sono più rilevanti,soprattutto in condizioni di buio senza lampioni né altra illuminazione artificiale.
-
+During the night, the percentages of accidents on wet or icy asphalt are more significant, especially in conditions of darkness without streetlights or other artificial lighting.
 ___
 
-## Visibilità e gravità dell'incidente
+## Visibility and severity of the incident.
 
 ```{r var2, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1173,9 +1154,9 @@ ggplot(data_london2014,
   scale_y_continuous(labels = scales::percent_format())
 ```
 
-Circa il 45% degli incidenti gravi si verifica durante le ore notturne. Una cosa interessante da notare sull'istogramma è la sorprendentemente piccola incidenza della luce artificiale (come i lampioni) nel prevenire gli incidenti. La porzione di incidenti che si sono verificati in condizioni di completa oscurità, infatti, non è drammaticamente superiore a quelli in condizioni di luce artificiale - come se la presenza o no dei lampioni non riducesse la probabilità di incidenti.
+Approximately 45% of severe incidents occur during nighttime hours. An interesting observation from the histogram is the surprisingly small impact of artificial light (such as streetlights) in preventing accidents. The portion of incidents that occurred in complete darkness, in fact, is not dramatically higher than those in conditions of artificial light—as if the presence or absence of streetlights does not significantly reduce the likelihood of accidents.  
 
-Un'importante differenziazione da effettuare sarebbe individuare esattamente dove si sono verificati tali incidenti: è possibile che la maggior parte di incidenti gravi si siano verificati su strade non illuminate.
+An important distinction to make would be to identify exactly where these incidents occurred: it is possible that the majority of severe incidents took place on unlit roads.
 
 ```{r var3, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1184,11 +1165,11 @@ London_map <- get_map(location = c(lon = -0.1180, lat = 51.5099), maptype = "roa
 ggmap(London_map) +geom_point(data = subset(data_london2014, data_london2014$Light_Conditions == "Night: Complete darkness"), aes(x = Longitude, y = Latitude), color = "black", size = 1) 
 ```
 
-Come prevedibile, tutti gli incidenti avvenuti in 'Complete Darkness' sono distanti dal centro urbano di Londra, che si suppone sia quasi sempre ben illuminato.
+As expected, all incidents that occurred in 'Complete Darkness' are located far from the urban center of London, which is presumed to be almost always well-lit.
 
 ___
 
-## Gravità dell'incidente e tipo di strada
+## Severity of the incident and type of road.
 
 ```{r var4, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data_london2014, 
@@ -1199,13 +1180,13 @@ ggplot(data_london2014,
   scale_y_continuous(labels = scales::percent_format())
 ```
 
-* La maggior parte degli incidenti avviene in "Single Carriageway" (carreggiata con singola corsia in ciascun senso di marcia). Cosa verosimile se si immagina, ad esempio, una manovra di sorpasso che in queste condizioni è più pericolosa per l'esposizione a uno scontro frontale;
-* La seconda categoria è 'Dual Carriageway' - il rischio di frontali è quasi escluso qui, soprattutto se c'è un guardrail a separare le due carreggiate, ma continuano ad esistere tutte le altre cause (sbandamenti, tamponamenti, sopratutto a catena poichè si tratta di strade tipiche dell'alta velocità come le autostrade);
-* Autoesplicativo che le rotonde siano più sicure, visto il loro obiettivo di rendere lo scorrimento del traffico più fluido;
-* Autoesplicativo anche come ci siano pochi incidenti che avvengono nelle strade a senso unico;
-* Il basso volume di incidenti nelle 'Slip Road' (ossia corsie di accelerazione/decelerazione) trova spiegazione nel fatto che il transito è limitato all'immissione nella strada principale e relativamente rapido.
+* Most accidents occur on "Single Carriageway" (roadway with a single lane in each direction). This is plausible if you imagine, for example, an overtaking maneuver which in these conditions is more dangerous due to exposure to head-on collisions;
+* The second category is 'Dual Carriageway' - the risk of head-on collisions is almost excluded here, especially if there is a guardrail separating the two carriageways, but all other causes continue to exist (skidding, rear-end collisions, especially chain reactions since these are typical high-speed roads like highways);
+* Self-explanatory that roundabouts are safer, given their objective of making traffic flow smoother;
+* Also self-explanatory how there are few accidents occurring on one-way streets;
+* The low volume of accidents on 'Slip Roads' (i.e. acceleration/deceleration lanes) can be explained by the fact that transit is limited to merging into the main road and is relatively quick.
 
-Per ricevere qualche indizio su quali possano essere le categorie di incidente caratteristiche del 'Single Carriageway' (se scontri frontali, tamponamenti a catena o altri casi in cui è coinvolto esclusivamete il veicolo incidentato) si indaga la relazione tra il numero di veicoli coinvolti e la categoria di strada:
+To get some clues about which accident categories are characteristic of 'Single Carriageway' (whether head-on collisions, chain rear-end collisions, or other cases involving exclusively the crashed vehicle), we investigate the relationship between the number of vehicles involved and the road category:
 
 ```{r var5, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data_london2014, 
@@ -1218,13 +1199,13 @@ ggplot(data_london2014,
   scale_y_continuous(labels = scales::percent_format())
 ```
 
-Le occorrenze nelle strade a senso unico e corsie di accelerazione/decelerazione 'spariscono' oltre i 3 veicoli coinvolti, intuitivamente. Per quanto riguarda le rotonde, fino a 4 veicoli coinvolti la percentuale di incidenti continua ad esistere.
+Occurrences on one-way streets and acceleration/deceleration lanes intuitively 'disappear' when more than 3 vehicles are involved. Regarding roundabouts, accident percentages continue to exist for up to 4 vehicles involved.
 
-Infine è interessante notare come, apparentemente, all'aumentare dei veicoli coinvolti, sia più improbabile che si tratti di una carreggiata con due sole corsie opposte: assume infatti importanza la percentuale di doppia corsia.
+Finally, it's interesting to note how, apparently, as the number of involved vehicles increases, it becomes less likely for the accident to occur on a roadway with just two opposite lanes: the percentage of dual-lane roads becomes more significant.
 
-Per approfondire, si visualizza l'animazione dell'aumento dei casi di incidenti su strade a doppia corsia all'aumentare dei veicoli coinvolti. Vengono esaminati in relazione al numero persone coinvolte.
+To explore this further, an animation shows the increase in accident cases on dual-lane roads as the number of involved vehicles increases. These are examined in relation to the number of people involved.
 
-(Naturalmente, in PDF si perderà la possibilità di visualizzare l'animazione).
+(Of course, in PDF format, the ability to view the animation will be lost)
 
 ```{r var6, echo=TRUE, message=FALSE, warning=FALSE}
 animazione <- ggplot(data, 
@@ -1240,9 +1221,11 @@ animazione <- ggplot(data,
 animate(animazione, nframes = 100, duration = 10, fps = 5)
 ```
 
-L'animazione mostra come all'aumentare del numero di veicoli coinvolti (e delle persone ferite/decedute) effettivamente si confermi un aumento di sinistri che avvengono sulle 'Dual Carriageway'.
+Here's the English translation:
 
-Per una controprova, si effettua un'astrazione con tutti i dati del dataset originale (non piu' limitato a Londra e nel 2014), fino a 14 veicoli coinvolti:
+The animation shows that as the number of vehicles involved (and injured/deceased people) increases, there is indeed a confirmed increase in accidents occurring on 'Dual Carriageways'.
+
+As a cross-check, an abstraction is performed using all data from the original dataset (no longer limited to London and 2014), up to 14 vehicles involved:
 
 ```{r var7, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(subset(source, source$Number_of_Vehicles < 15), 
@@ -1253,11 +1236,13 @@ ggplot(subset(source, source$Number_of_Vehicles < 15),
   scale_y_continuous(labels = scales::percent_format())
 ```
 
-Ciò che è emerso per Londra può dunque essere espanso all'intero territorio nazionale: all'aumentare dei veicoli coinvolti nell'incidente, è più alta la probabilità che sia avvenuto su una strada a doppia corsia.
+Here's the English translation:
+
+What emerged for London can therefore be expanded to the entire national territory: as the number of vehicles involved in the accident increases, there is a higher probability that it occurred on a dual carriageway road.
 
 ___
 
-## Giorno della settimana e area urbana/extraurbana
+## Day of the week and urban/rural area
 
 ```{r var8, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data_london2014, 
@@ -1281,11 +1266,11 @@ ggplot(data_london2014,
   theme_minimal()
 ```
 
-Non ci sono grandi differenze tra i giorni della settimana, a parte un minimo aumento dei casi di incidenti su strade extraurbane durante il fine settimana (sabato e domenica). Un'ipotesi potrebbe essere quella delle gite fuori porta / pendolari che terminano la settimana lavorativa/accademica il sabato e rientrano in città la domenica. Cionostante, l'aumento è impercettibile, per cui non viene approfondito.
+There are no major differences between days of the week, except for a slight increase in accidents on rural roads during weekends (Saturday and Sunday). One hypothesis could be day trips / commuters who finish their work/academic week on Saturday and return to the city on Sunday. However, the increase is barely noticeable, so it is not explored further.
 
 ___
 
-## Condizioni atmosferiche e mese dell'anno
+## Weather conditions and month of the year
 
 ```{r var9, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(data_london2014, 
@@ -1298,11 +1283,11 @@ ggplot(data_london2014,
   labs(x="", y = "", title = "", fill = "Meteo") 
 ```
 
-Si noti che la categoria 'Other' comprende: foschia, nebbia, neve con vento debole, neve con vento forte, etc. Tale informazione spiega perché questa categoria non sia presente tra i mesi estivi.
+Please note that the 'Other' category includes: haze, fog, snow with light wind, snow with strong wind, etc. This information explains why this category is not present during the summer months.
 
-La maggior parte degli incidenti è avvenuta con condizioni climatiche 'Fine' in tutti i mesi dell'anno. È opportuno ricordare che, come introdotto nelle sezioni precedenti, la categoria 'Fine' includa molte più condizioni atmosferiche rispetto al cielo perfettamente sereno (vento debole, pioggia leggera) purchè non invalidanti all'atto della guida.
+Most accidents occurred in 'Fine' weather conditions in all months of the year. It is important to remember that, as introduced in the previous sections, the 'Fine' category includes many more weather conditions than perfectly clear skies (light wind, light rain) as long as they are not invalidating the act of driving.
 
-A seguire, una mappa ad albero che evidenzia in maniera ancora più eclatante come "Fine" possa potenzialmente racchiudere molte più condizioni atmosferiche rispetto al ciel sereno:
+Following is a tree diagram that highlights even more strikingly how "Fine" can potentially encompass many more weather conditions than clear skies:
 
 ```{r var10, echo=FALSE, message=FALSE, warning=FALSE}
 plotdata <- data_london2014 %>%
@@ -1321,7 +1306,7 @@ ggplot(plotdata,
 
 ___
 
-## Persone coinvolte, ora e giorno dell'incidente
+## People involved, time and day of the accident
 
 ```{r var11, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -1340,18 +1325,17 @@ ggplot(data_london2014,
        y = "Orario dell'incidente")
 ```
 
-Dal grafico emerge che nei fine settimana, durante le prime ore del mattino, gli incidenti coinvolgano più feriti/vittime. 
+The chart shows that on weekends, during the early hours of the morning, accidents involve more injured/victims.
 
 ___
 ___
 
-# Confronto tra città
+# City Comparison
 
-In conclusione all'analisi, vengono prese in considerazione le prime cinque città tra le "largest urban agglomerations" del Regno Unito, per fare un confronto tra di esse. Lo scopo principale è di individuare caratteristiche comuni nell'andamento degli incidenti stradali tra i principali centri urbani britannici.
+In conclusion to the analysis, the top five cities among the "largest urban agglomerations" in the United Kingdom are considered for a comparison between them. The main purpose is to identify common characteristics in the trend of road accidents among the major British urban centers.
 
-Precisamente:
-
-* Londra
+Specifically:
+* London
 * Manchester
 * Birmingham
 * Bradford
@@ -1391,9 +1375,8 @@ plotdata <- as.data.frame(plotdata)
 row.names(plotdata) <- plotdata$City_Name
 plotdata$City_Name <- NULL
 
-#ordinamento
+# ordering
 sort.order <- order(plotdata$"2014")
-
 colors <- rev(brewer.pal(5, "Blues"))
 
 superheat(plotdata,
@@ -1406,17 +1389,17 @@ superheat(plotdata,
           title = "Incidenti annui nelle 5 città più popolose del Regno Unito")
 ```
 
-Dal grafico si nota come, per tutte le città ad esclusione di Londra, vi sia un trend decrescente in termini di numero di incidenti negli anni, con un aumento di sinistri nel 2014.
+The chart shows that, for all cities except London, there is a downward trend in terms of the number of accidents over the years, with an increase in accidents in 2014.
 
-Tenendo a mente ciò che è stato già detto nelle analisi anteriori, sulla città di Londra non emerge la stessa tendenza: di fatto, il numero di incidenti si mantiene piuttosto stabile attraverso gli anni. L'unica similitudine tra Londra e le altre quattro città è appunto questo aumento di incidenti registrato nel 2014 rispetto all'anno precedente.
+Keeping in mind what has already been said in the previous analyses, the same trend does not emerge in the city of London: in fact, the number of accidents remains rather stable over the years. The only similarity between London and the other four cities is precisely this increase in accidents recorded in 2014 compared to the previous year.
 
 ___
 ___
 
-# Conclusioni
+#Conclusions
 
-Nell'analisi dei dati condotta in queste pagine emergono importanti considerazioni e riflessioni. Pur non individuando pattern o tendenze eclatanti, è significativo il fatto che l'analisi abbia contribuito a fornire ipotesi per una maggiore comprensione della complessa dinamica degli incidenti stradali nel Regno Unito. Questo ha portato ad alcune osservazioni che potrebbero essere utili per la pianificazione e l'implementazione di interventi mirati volti a migliorare la sicurezza stradale. 
+The analysis of the data conducted in these pages reveals important considerations and reflections. While not identifying striking patterns or trends, it is significant that the analysis has contributed to providing hypotheses for a greater understanding of the complex dynamics of road accidents in the United Kingdom. This has led to some observations that could be useful for the planning and implementation of targeted interventions aimed at improving road safety.
 
-Infine, la descrizione del dataset con il livello di dettaglio proposto in quest'analisi fornisce un'opportunità per approfondire ulteriormente la ricerca, esplorando altri fattori che avrebbero potuto incidere sulla definizione di strategie di miglioramento. Alcuni esempi potrebbero essere attributi legati strettamente alle condizioni psicofisiche del guidatore al momento dell'incidente, così come informazioni anagrafiche (come età o anni di esperienza alla guida) e/o informazioni sullo specifico veicolo, sia identificative (modello, carrozzeria, cilindrata, tipologia - se a due o quattro ruote, se utilitaria, veicolo commerciale leggero, auto sportiva, autobus, trasporto merci, etc.) che contestuali (velocità al momento dell'impatto, numero di passeggeri, storico degli incidenti del veicolo, etc.).
+Finally, the description of the dataset with the level of detail proposed in this analysis provides an opportunity to further explore the research, exploring other factors that could have affected the definition of improvement strategies. Some examples could be attributes closely related to the psychophysical conditions of the driver at the time of the accident, as well as personal information (such as age or years of driving experience) and/or information on the specific vehicle, both identifying (model, body type, engine capacity, type - whether two or four wheels, whether utility, light commercial vehicle, sports car, bus, freight transport, etc.) and contextual (speed at the time of impact, number of passengers, vehicle accident history, etc.).
 
-In conclusione, anche quando i risultati non sono sorprendenti, l'analisi dei dati è comunque uno strumento molto efficace per descrivere fedelmente la realtà e rappresenta un passo importante verso la comprensione di un problema critico e nella ricerca di soluzioni efficaci per migliorare la sicurezza sulle strade.
+In conclusion, even when the results are not surprising, data analysis is still a very effective tool to faithfully describe reality and represents an important step towards understanding a critical problem and in the search for effective solutions to improve safety on the roads.
